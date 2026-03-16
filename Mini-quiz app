@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 
-// ── 1. Question structure with constructor ──
+//Question structure with constructor
 struct QuizQuestion {
     string question;
     string options[4];
@@ -21,7 +21,6 @@ struct QuizQuestion {
 };
 
 int main() {
-    // ── 2. Create question array with options ──
     vector<QuizQuestion> questions = {
         QuizQuestion("What is the size of int in C++?",
             "A. 2 bytes", "B. 4 bytes", "C. 8 bytes", "D. 1 byte", "B"),
@@ -46,7 +45,6 @@ int main() {
     cout << "     Welcome to C++ Quiz!\n";
     cout << "=============================\n\n";
 
-    // ── 3. Loop through each question ──
     for (int i = 0; i < total; i++) {
         cout << "Q" << (i + 1) << ": " << questions[i].question << "\n";
 
@@ -54,7 +52,7 @@ int main() {
             cout << "   " << questions[i].options[j] << "\n";
         }
 
-        // ── 4. Take user answer input ──
+        // user input
         string userAnswer;
         cout << "Your answer (A/B/C/D): ";
         cin >> userAnswer;
@@ -63,7 +61,7 @@ int main() {
         if (userAnswer[0] >= 'a' && userAnswer[0] <= 'd')
             userAnswer[0] -= 32;
 
-        // ── 5. Calculate score ──
+        //Calculate score
         if (userAnswer == questions[i].correctAnswer) {
             cout << "  Correct!\n\n";
             score++;
@@ -73,7 +71,7 @@ int main() {
         }
     }
 
-    // ── 6. Show final result ──
+    //Show final result
     float percent = (score * 100.0) / total;
 
     cout << "=============================\n";
