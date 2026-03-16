@@ -1,1 +1,99 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
 
+// ── 1. Question structure with constructor ──
+struct QuizQuestion {
+    string question;
+    string options[4];
+    string correctAnswer;
+
+    // Constructor to allow initializer list
+    QuizQuestion(string q, string o0, string o1, string o2, string o3, string ans) {
+        question = q;
+        options[0] = o0;
+        options[1] = o1;
+        options[2] = o2;
+        options[3] = o3;
+        correctAnswer = ans;
+    }
+};
+
+int main() {
+    // ── 2. Create question array with options ──
+    vector<QuizQuestion> questions = {
+        QuizQuestion("What is the size of int in C++?",
+            "A. 2 bytes", "B. 4 bytes", "C. 8 bytes", "D. 1 byte", "B"),
+
+        QuizQuestion("Which symbol is used for single-line comments in C++?",
+            "A. #", "B. /*", "C. //", "D. --", "C"),
+
+        QuizQuestion("What does 'cin' stand for?",
+            "A. Console Input", "B. Character Input", "C. Class Input", "D. None", "A"),
+
+        QuizQuestion("Which header file is used for input/output?",
+            "A. <stdlib.h>", "B. <string>", "C. <iostream>", "D. <stdio.h>", "C"),
+
+        QuizQuestion("What is the correct way to declare a constant?",
+            "A. const int x = 5;", "B. constant int x = 5;", "C. int const = 5;", "D. #define x int 5", "A")
+    };
+
+    int score = 0;
+    int total = questions.size();
+
+    cout << "=============================\n";
+    cout << "     Welcome to C++ Quiz!\n";
+    cout << "=============================\n\n";
+
+    // ── 3. Loop through each question ──
+    for (int i = 0; i < total; i++) {
+        cout << "Q" << (i + 1) << ": " << questions[i].question << "\n";
+
+        for (int j = 0; j < 4; j++) {
+            cout << "   " << questions[i].options[j] << "\n";
+        }
+
+        // ── 4. Take user answer input ──
+        string userAnswer;
+        cout << "Your answer (A/B/C/D): ";
+        cin >> userAnswer;
+
+        // Convert to uppercase
+        if (userAnswer[0] >= 'a' && userAnswer[0] <= 'd')
+            userAnswer[0] -= 32;
+
+        // ── 5. Calculate score ──
+        if (userAnswer == questions[i].correctAnswer) {
+            cout << "  Correct!\n\n";
+            score++;
+        } else {
+            cout << "  Wrong! Correct answer: "
+                 << questions[i].correctAnswer << "\n\n";
+        }
+    }
+
+    // ── 6. Show final result ──
+    float percent = (score * 100.0) / total;
+
+    cout << "=============================\n";
+    cout << "         FINAL RESULT\n";
+    cout << "=============================\n";
+    cout << "Score : " << score << " / " << total << "\n";
+    cout << "Marks : " << percent << "%\n";
+
+    if (percent == 100)
+        cout << "Grade : Excellent! Perfect score!\n";
+    else if (percent >= 80)
+        cout << "Grade : Great job!\n";
+    else if (percent >= 60)
+        cout << "Grade : Good. Keep practicing!\n";
+    else if (percent >= 40)
+        cout << "Grade : Needs improvement.\n";
+    else
+        cout << "Grade : Keep studying C++!\n";
+
+    cout << "=============================\n";
+
+    return 0;
+}
