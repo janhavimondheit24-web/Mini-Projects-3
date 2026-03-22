@@ -1,0 +1,98 @@
+#include <iostream>
+using namespace std;
+
+const int SIZE = 6;
+
+// 0 = open path, 1 = wall
+int maze[SIZE][SIZE] = {
+    {0, 1, 0, 0, 0, 0},
+    {0, 1, 0, 1, 1, 0},
+    {0, 0, 0, 1, 0, 0},
+    {0, 1, 1, 0, 0, 1},
+    {0, 0, 0, 0, 1, 0},
+    {1, 1, 0, 0, 0, 0}   // goal is [5][5]
+};
+
+// Solution matrix — stores the path taken
+int solution[SIZE][SIZE] = {0};
+
+void printMaze(int grid[SIZE][SIZE]) {
+    cout << "\n";
+    for (int r = 0; r < SIZE; r++) {
+        cout << "  ";
+        for (int c = 0; c < SIZE; c++) {
+            if (r == 0 && c == 0)
+                cout << "\033[1;32m S \033[0m";   // Start  (green)
+            else if (r == SIZE-1 && c == SIZE-1)
+                cout << "\033[1;33m G \033[0m";   // Goal   (yellow)
+            else if (grid[r][c] == 1)
+                cout << "\033[1;31m # \033[0m";   // Wall   (red)
+            else if (grid[r][c] == 2)
+                cout << "\033[1;36m . \033[0m";   // Path   (cyan)
+            else
+                cout << "   ";                    // Open
+        }
+        cout << "\n";
+    }
+    cout << "\n";
+}
+
+//Backtracking
+bool isSafe(int r, int c) {
+    return r >= 0 && r < SIZE &&
+           c >= 0 && c < SIZE &&
+           maze[r][c] == 0 &&
+           solution[r][c] == 0;   // not visited
+}
+
+bool solve(int r, int c) {
+    // Base case: reached the goal
+    if (r == SIZE-1 && c == SIZE-1) {
+        solution[r][c] = 2;
+        return true;
+    }
+
+    if (!isSafe(r, c))
+        return false;
+
+    // Mark current cell as part of path
+    solution[r][c] = 2;
+
+    // Try all 4 directions: Down, Right, Up, Left
+    if (solve(r+1, c)) return true;
+    if (solve(r, c+1)) return true;
+    if (solve(r-1, c)) return true;
+    if (solve(r, c-1)) return true;
+
+    // Backtrack — this cell is not on the solution path
+    solution[r][c] = 0;
+    return false;
+}
+
+int main() {
+    cout << "\033[1;36m"
+         "  ╔════════════════════════════╗\n"
+         "  ║   Maze Solver              ║\n"
+         "  ║   S = Start  G = Goal      ║\n"
+         "  ║   # = Wall   . = Path      ║\n"
+         "  ╚════════════════════════════╝\033[0m\n";
+
+    cout << "\033[1m  The Maze:\033[0m";
+    printMaze(maze);   // show maze using maze values (0/1)
+
+    // Copy maze walls into solution grid before solving
+    for (int r = 0; r < SIZE; r++)
+        for (int c = 0; c < SIZE; c++)
+            if (maze[r][c] == 1)
+                solution[r][c] = 1;
+
+    if (solve(0, 0)) {
+        cout << "\033[1;32m  Path found!\033[0m\n";
+        cout << "\033[1m  Solution:\033[0m";
+        printMaze(solution);
+    } else {
+        cout << "\033[1;31m  No path exists in this maze.\033[0m\n\n";
+    }
+
+    return 0;
+}
