@@ -1,0 +1,180 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+
+char board[3][3];
+
+void initBoard(){
+    char n = '1';
+    for (int r = 0; r<3; r++){
+        for(int c = 0; c<3; c++){
+            board[r][c]= n++;
+        }
+    }
+}
+void printBoard(){
+    cout<<"\n";
+    for(int r = 0; r<3; r++){
+        cout<<" ";
+        for(int c = 0; c<3; c++){
+            char ch = board[r][c];
+            if(ch=='X'){
+                cout<<"\033[1;31m X \033[0m";
+            }
+            else if (ch == 'O'){
+                cout << "\033[1;34m O \033[0m";
+            }
+            else {
+                cout << "\033[90m " << ch << " \033[0m";
+            }
+            if (c < 2){
+                 cout << "\033[90m|\033[0m";
+            }
+        }
+        cout<<"\n";
+        if(r<2)cout<<"  \033[90m---+---+---\033[0m\n";
+    }
+    cout<<"\n";
+}
+
+//Game state logic
+char checkState(){
+    for(int i= 0; i<3; i++){
+        if(board[i][0] == board[i][1] && board[i][1]==board[i][2]){
+            return board[i][0];
+        }
+        if(board[0][i] == board[1][i] && board[1][i]==board[2][i]){
+            return board[0][i];
+        }
+    }
+    if (board[0][0] == board[1][1] && board[1][1] == board[2][2]){
+        return board[0][0];
+    }
+    if (board[0][2] == board[1][1] && board[1][1] == board[2][0]){
+        return board[0][2];
+    }
+    for (int r = 0; r < 3; r++){
+        for (int c = 0; c < 3; c++){
+            if (board[r][c] != 'X' && board[r][c] != 'O')
+                return ' ';
+        }
+    }
+    return 'D';
+}
+//  Minmax algorithm
+int minimax(bool isMaximising) {
+    char state = checkState();
+    if (state == 'O') return +10;
+    if (state == 'X') return -10;
+    if (state == 'D') return  0;
+ 
+    int best = isMaximising ? INT_MIN : INT_MAX;
+    for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 3; c++) {
+            if (board[r][c] == 'X' || board[r][c] == 'O') continue;
+            char saved = board[r][c];
+            board[r][c] = isMaximising ? 'O' : 'X';
+            int score = minimax(!isMaximising);
+            board[r][c] = saved;
+            best = isMaximising ? max(best, score) : min(best, score);
+        }
+    }
+    return best;
+}
+ 
+void computerMove() {
+    int bestScore = INT_MIN, br = -1, bc = -1;
+    for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 3; c++) {
+            if (board[r][c] == 'X' || board[r][c] == 'O') continue;
+            char saved = board[r][c];
+            board[r][c] = 'O';
+            int score = minimax(false);
+            board[r][c] = saved;
+            if (score > bestScore) { bestScore = score; br = r; bc = c; }
+        }
+    }
+    board[br][bc] = 'O';
+    cout << "  \033[1;34m🤖 Computer plays at position "
+         << (br * 3 + bc + 1) << "\033[0m\n";
+}
+ 
+//  Player move
+void playerMove(char symbol) {
+    int pos;
+    while (true) {
+        cout << "  \033[1m" << symbol
+             << "'s turn — choose a square (1-9): \033[0m";
+        cin >> pos;
+ 
+        if (cin.fail() || pos < 1 || pos > 9) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "  \033[33m⚠  Enter a number between 1 and 9.\033[0m\n";
+            continue;
+        }
+ 
+        int r = (pos - 1) / 3, c = (pos - 1) % 3;
+        if (board[r][c] == 'X' || board[r][c] == 'O') {
+            cout << "  \033[33m⚠  Square already taken. Try again.\033[0m\n";
+            continue;
+        }
+ 
+        board[r][c] = symbol;
+        break;
+    }
+}
+ 
+//  MAIN GAME LOOP
+int main() {
+    cout << "\033[1;36m"
+            "  ╔═══════════════════════╗\n"
+            "  ║   Tic-Tac-Toe         ║\n"
+            "  ╚═══════════════════════╝\033[0m\n\n";
+ 
+    char modeChoice;
+    cout << "  Play vs  [1] Human   [2] Computer : ";
+    cin >> modeChoice;
+    bool vsComputer = (modeChoice == '2');
+ 
+    string names[2];
+    names[0] = "Player 1 (X)";
+    names[1] = vsComputer ? "Computer (O)" : "Player 2 (O)";
+ 
+    if (vsComputer)
+        cout << "\n  \033[90mComputer uses the Minimax algorithm — good luck!\033[0m\n";
+ 
+    char replay;
+    do {
+        initBoard();
+        int turn = 0;
+ 
+        cout << "\n  \033[90mSquares are numbered 1-9, left-to-right, top-to-bottom.\033[0m\n";
+        printBoard();
+ 
+        while (true) {
+            cout << "\033[1m  " << names[turn] << "\033[0m\n";
+            if (vsComputer && turn == 1)
+                computerMove();
+            else
+                playerMove(turn == 0 ? 'X' : 'O');
+            printBoard();
+            char state = checkState();
+            if (state != ' ') {
+                if (state == 'D') {
+                    cout << "  \033[1;33mIt's a draw!\033[0m\n\n";
+                } else {
+                    int winner = (state == 'X') ? 0 : 1;
+                    cout << "  \033[1;32m" << names[winner] << " wins!\033[0m\n\n";
+                }
+                break;
+            }
+            turn = 1 - turn;
+        }
+        cout << "  Play again? [y/n] : ";
+        cin >> replay;
+        cout << "\n";
+    } while (replay == 'y' || replay == 'Y');
+    cout << "  \033[90mThanks for playing! Goodbye\033[0m\n\n";
+    return 0;
+}
